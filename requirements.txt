@@ -1,5 +1,5 @@
-facenet-pytorch
-torch
-torchvision
-pillow
-python-telegram-bot
+facenet-pytorch==2.6.0
+torch==2.2.2
+torchvision==0.17.2
+pillow==10.2.0
+python-telegram-bot==22.1
