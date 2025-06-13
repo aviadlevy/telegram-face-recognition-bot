@@ -1,0 +1,5 @@
+facenet-pytorch
+torch
+torchvision
+pillow
+python-telegram-bot

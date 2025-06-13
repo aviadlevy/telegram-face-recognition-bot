@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  facebot:
+    build: .
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - CLEANUP_INTERVAL=${CLEANUP_INTERVAL:-3600}
+      - CLEANUP_MAX_AGE=${CLEANUP_MAX_AGE:-3600}
+    volumes:
+      - ./embeddings:/app/embeddings
+      - ./uploads:/app/uploads
+      - ./reference_photos:/app/reference_photos
+    restart: unless-stopped
