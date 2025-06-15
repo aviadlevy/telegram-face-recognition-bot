@@ -19,7 +19,8 @@ for fname in os.listdir(EMBEDDINGS_DIR):
 print(f"Loaded {len(known_embeddings)} known embeddings.")
 
 
-def recognize_faces(image_path: str, threshold=0.8) -> str:
+def recognize_faces(image_path: str, threshold=0.65) -> str:
+    threshold = float(os.getenv('RECOGNITION_THRESHOLD', threshold))
     img = Image.open(image_path).convert("RGB")
     faces = mtcnn(img, return_prob=False)
 
@@ -27,7 +28,7 @@ def recognize_faces(image_path: str, threshold=0.8) -> str:
         print("No faces detected.")
         return "❌ No face detected"
 
-    # Ensure we always work with a list of faces
+    min_dist = float('inf')
     if isinstance(faces, torch.Tensor):
         print(f"Detected {faces.shape[0]} face(s).")
         for i in range(faces.shape[0]):
@@ -39,12 +40,13 @@ def recognize_faces(image_path: str, threshold=0.8) -> str:
             embedding = model(face.unsqueeze(0))
             for known_emb in known_embeddings:
                 dist = (embedding - known_emb).norm().item()
+                min_dist = min(min_dist, dist)
                 if dist < threshold:
                     print(f"✅ Match found on face {i + 1} - Distance: {dist:.4f}")
-                    return "✅ Match found"
+                    return f"✅ Match found on face {i + 1} - Distance: {dist:.4f}"
 
         print(f"❌ No match found in {faces.shape[0]} face(s).")
-        return "❌ No match found"
+        return f"❌ No match found in {faces.shape[0]} face(s).  \n- Minimum distance: {min_dist:.4f}"
 
     # Handle case where faces is a list
     print(f"Detected {len(faces)} face(s).")
