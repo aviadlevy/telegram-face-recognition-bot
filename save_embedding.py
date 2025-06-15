@@ -8,20 +8,26 @@ EMBEDDINGS_DIR = "embeddings"
 
 os.makedirs(EMBEDDINGS_DIR, exist_ok=True)
 
-mtcnn = MTCNN(image_size=160, margin=0)
+mtcnn = MTCNN(image_size=160, margin=0, keep_all=True)
 model = InceptionResnetV1(pretrained='vggface2').eval()
 
 
 def process_and_save_embedding(image_path):
     img = Image.open(image_path)
-    face = mtcnn(img)
-    if face is None:
-        print(f"No face detected in {image_path}, skipping.")
-        return
-    embedding = model(face.unsqueeze(0))
-    filename = os.path.splitext(os.path.basename(image_path))[0] + ".pt"
-    torch.save(embedding, os.path.join(EMBEDDINGS_DIR, filename))
-    print(f"Saved embedding for {image_path} as {filename}")
+    faces = mtcnn(img, return_prob=False)
+
+    if faces is None or len(faces) == 0:
+        print("No faces detected.")
+        return "❌ No face detected"
+
+    if isinstance(faces, torch.Tensor):
+        print(f"Detected {faces.shape[0]} face(s).")
+        for i in range(faces.shape[0]):
+            face = faces[i]
+            embedding = model(face.unsqueeze(0))
+            filename = os.path.splitext(os.path.basename(image_path))[0] + f"_{i}" + ".pt"
+            torch.save(embedding, os.path.join(EMBEDDINGS_DIR, filename))
+            print(f"Saved embedding for {image_path} as {filename}")
 
 
 if __name__ == "__main__":
