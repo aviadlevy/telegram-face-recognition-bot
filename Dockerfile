@@ -23,7 +23,4 @@ RUN pip install -r requirements.lock.txt
 
 COPY . .
 
-# Generate embeddings at build time
-RUN python save_embedding.py
-
 CMD ["python", "-u", "bot.py"]
