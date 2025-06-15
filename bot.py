@@ -26,11 +26,10 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat_id
     message_id = update.message.message_id
 
-    # React with 👀 while analyzing
-    await context.bot.set_message_reaction(
-        chat_id=chat_id,
-        message_id=message_id,
-        reaction=["\U0001f440"],
+    # Reply to the photo with "checking" (👀)
+    sent_message = await update.message.reply_text(
+        "\U0001f440 Checking...",
+        reply_to_message_id=message_id,
     )
 
     photo = update.message.photo[-1]
@@ -40,9 +39,11 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     result = recognize_faces(file_path)
 
-    await update.message.reply_text(
-        result,
-        reply_to_message_id=message_id,
+    # Edit the sent message with the result
+    await context.bot.edit_message_text(
+        chat_id=chat_id,
+        message_id=sent_message.message_id,
+        text=result,
     )
 
 
